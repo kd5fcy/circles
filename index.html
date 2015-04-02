@@ -1,0 +1,178 @@
+<html>
+<head>
+	<title>Javascript Box - OOP demo</title>
+	<script type="text/javascript" src="d3.min.js"></script>
+</head>
+<body>
+
+	<svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+
+</body>
+</html>
+	<script>
+	var touch_time;
+    function getTime(){
+        var date = new Date();
+        return date.getTime();
+    }
+    window.addEventListener('load', function(){
+        document.body.addEventListener('touchend', function(e){
+            radius = (getTime() - touch_time)/10;
+            playground.createNewCircle(e.changedTouches[0].pageX,e.changedTouches[0].pageY);
+        }, false)
+        document.body.addEventListener('touchstart', function(e){
+            touch_time = getTime();
+        }, false)
+    }, false)
+	var radius = 10;
+	( function Mouse(){
+		var mousedown_time;
+		function getTime(){
+			var date = new Date();
+			return date.getTime();
+		}
+
+		document.onmousedown = function(e){
+			mousedown_time = getTime();
+		}
+		document.onmouseup = function(e){
+			time_pressed = getTime() - mousedown_time;
+			radius = time_pressed/20;
+		}
+	})();
+	function Circle(cx, cy, html_id)
+	{
+		this.radius = radius;
+		var html_id = html_id;
+		this.info = { cx: cx,  cy: cy };
+		
+		var randomNumberBetween = function(min, max){
+			return Math.random()*(max-min) + min;
+		}
+
+		this.initialize = function(){
+			this.info.velocity = {
+				x: randomNumberBetween(-3,3),
+				y: randomNumberBetween(-3,3)
+			}
+			var r = Math.floor(Math.random() * 256);
+			var g = Math.floor(Math.random() * 256);
+			var b = Math.floor(Math.random() * 256);
+			var circle = makeSVG('circle', 
+				{ 	cx: this.info.cx,
+				  	cy: this.info.cy,
+				  	r:  radius,
+				  	id: "id" + html_id,
+				  	style: "fill: rgb(" + r + "," + g + "," + b + ")"
+				});
+
+			document.getElementById('svg').appendChild(circle);
+
+		}
+
+		this.update = function(time){
+			var el = document.getElementById("id" + html_id);
+			var page = document.getElementById('svg');
+
+			if( this.info.cx > (document.body.clientWidth - this.radius - 10) || this.info.cx < this.radius)
+			{
+				this.info.velocity.x = this.info.velocity.x * -1;
+			}
+			if( this.info.cy > (document.body.clientHeight - this.radius - 10) || this.info.cy < this.radius)
+			{
+				this.info.velocity.y = this.info.velocity.y * -1;
+			}
+
+			this.info.cx = this.info.cx + this.info.velocity.x*time;
+			this.info.cy = this.info.cy + this.info.velocity.y*time;
+
+
+			page.setAttribute("width", document.body.clientWidth);
+			page.setAttribute("height", document.body.clientHeight);
+
+			el.setAttribute("cx", this.info.cx);
+			el.setAttribute("cy", this.info.cy);
+
+
+		}
+
+		var makeSVG = function(tag, attrs) {
+	        var el= document.createElementNS('http://www.w3.org/2000/svg', tag);
+	        for (var k in attrs)
+	        {
+	            el.setAttribute(k, attrs[k]);
+	        }
+	        return el;
+	    }
+
+	    this.initialize();
+	}
+
+	function PlayGround()
+	{
+		var counter = 0; 
+		var circles = [ ]; 
+
+		this.loop = function(){
+			for(circle in circles)
+			{
+				circles[circle].update(1);
+				var xnow = circles[this.circle].info.cx;
+				var ynow = circles[this.circle].info.cy;
+				var radnow = circles[this.circle].radius;
+				var currentcircle = this.circle;
+				for(circle in circles)
+				{
+					if(currentcircle !== this.circle)
+					{
+						var radnow1 = circles[this.circle].radius;
+						var xnow1 = circles[this.circle].info.cx;
+						var ynow1 = circles[this.circle].info.cy;
+						if(Math.sqrt( Math.pow((xnow - xnow1),2) + Math.pow((ynow - ynow1),2)) <= (radnow + radnow1))
+						{
+							function circ(par)
+							{
+								this.elemarray = d3.select("#id" + par);
+								var fill = this.elemarray.attr('style');
+								var res = fill.split(",");
+								this.r = res[0].replace(/[^0-9]/g,'');
+								this.g = res[1].replace(/[^0-9]/g,'');
+								this.b = res[2].replace(/[^0-9]/g,'');
+							}
+							var circle1 = new circ(this.circle);
+							var circle2 = new circ(currentcircle);
+							circle1.elemarray.transition()
+								.duration(2000)
+								.attr("r", 0)
+								.style("fill","white")
+								.remove();
+							circle2.elemarray.transition()
+								.duration(2000)
+								.attr("r", 0)
+								.style("fill","white")
+								.remove();
+							delete circles[this.circle];
+							delete circles[currentcircle];
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		this.createNewCircle = function(x,y){
+			var new_circle = new Circle(x,y,counter++);
+			circles.push(new_circle);
+		}
+
+		this.createNewCircle(document.body.clientWidth/2, document.body.clientHeight/2);
+	}
+
+	var playground = new PlayGround();
+	setInterval(playground.loop, 15);
+
+	document.onclick = function(e) {
+		playground.createNewCircle(e.x,e.y);
+	}
+
+	</script>
