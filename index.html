@@ -1,5 +1,6 @@
 <html>
 <head>
+<<<<<<< HEAD
 	<title>Javascript Box - OOP demo</title>
 	<script type="text/javascript" src="d3.min.js"></script>
 </head>
@@ -176,3 +177,34 @@
 	}
 
 	</script>
+=======
+	<title>Objects</title>
+</head>
+<body>
+	<script type="text/javascript">
+		function MathSample() {
+		  this.storage = [];
+		  for(var i=0; i<10; i++) {
+		    this.storage[i] = function() {
+		      console.log(i);
+		    }
+		  }
+		  i = 50;
+		}
+
+		var math = new MathSample();
+
+		for(var j=0; j<10; j++) {
+		  math.storage[j]();
+		}
+
+
+
+
+
+
+
+	</script>
+</body>
+</html>
+>>>>>>> 54c272011f4510fa60571e2c0786aca4001fe663
