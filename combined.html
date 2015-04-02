@@ -55,15 +55,15 @@
 				x: randomNumberBetween(-3,3),
 				y: randomNumberBetween(-3,3)
 			}
-			var r = Math.floor(Math.random() * 256);
-			var g = Math.floor(Math.random() * 256);
-			var b = Math.floor(Math.random() * 256);
+			this.info.r = Math.floor(Math.random() * 256);
+			this.info.g = Math.floor(Math.random() * 256);
+			this.info.b = Math.floor(Math.random() * 256);
 			var circle = makeSVG('circle', 
 				{ 	cx: this.info.cx,
 				  	cy: this.info.cy,
 				  	r:  radius,
 				  	id: "id" + html_id,
-				  	style: "fill: rgb(" + r + "," + g + "," + b + ")"
+				  	style: "fill: rgb(" + this.info.r + "," + this.info.g + "," + this.info.b + ")"
 				});
 
 			document.getElementById('svg').appendChild(circle);
@@ -132,11 +132,9 @@
 							function circ(par)
 							{
 								this.elemarray = d3.select("#id" + par);
-								var fill = this.elemarray.attr('style');
-								var res = fill.split(",");
-								this.r = parseInt(res[0].replace(/[^0-9]/g,''));
-								this.g = parseInt(res[1].replace(/[^0-9]/g,''));
-								this.b = parseInt(res[2].replace(/[^0-9]/g,''));
+								this.r = circles[par].info.r;
+								this.g = circles[par].info.g;
+								this.b = circles[par].info.b;
 								this.circindex = par;
 								this.circlex = function()
 								{
