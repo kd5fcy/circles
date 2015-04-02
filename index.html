@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Circles</title>
+	<title>Javascript Box - OOP demo</title>
 	<script type="text/javascript" src="d3.min.js"></script>
 </head>
 <body>
@@ -9,7 +9,7 @@
 
 </body>
 </html>
-	<script>
+	<script type="text/javascript">
 	var touch_time;
     function getTime(){
         var date = new Date();
@@ -55,45 +55,41 @@
 				x: randomNumberBetween(-3,3),
 				y: randomNumberBetween(-3,3)
 			}
-			var r = Math.floor(Math.random() * 256);
-			var g = Math.floor(Math.random() * 256);
-			var b = Math.floor(Math.random() * 256);
+			this.info.r = Math.floor(Math.random() * 256);
+			this.info.g = Math.floor(Math.random() * 256);
+			this.info.b = Math.floor(Math.random() * 256);
 			var circle = makeSVG('circle', 
 				{ 	cx: this.info.cx,
 				  	cy: this.info.cy,
 				  	r:  radius,
 				  	id: "id" + html_id,
-				  	style: "fill: rgb(" + r + "," + g + "," + b + ")"
+				  	style: "fill: rgb(" + this.info.r + "," + this.info.g + "," + this.info.b + ")"
 				});
 
 			document.getElementById('svg').appendChild(circle);
-
 		}
 
 		this.update = function(time){
 			var el = document.getElementById("id" + html_id);
 			var page = document.getElementById('svg');
 
-			if( this.info.cx > (document.body.clientWidth - this.radius - 10) || this.info.cx < this.radius)
-			{
-				this.info.velocity.x = this.info.velocity.x * -1;
-			}
-			if( this.info.cy > (document.body.clientHeight - this.radius - 10) || this.info.cy < this.radius)
-			{
-				this.info.velocity.y = this.info.velocity.y * -1;
-			}
-
 			this.info.cx = this.info.cx + this.info.velocity.x*time;
 			this.info.cy = this.info.cy + this.info.velocity.y*time;
-
-
-			page.setAttribute("width", document.body.clientWidth);
-			page.setAttribute("height", document.body.clientHeight);
 
 			el.setAttribute("cx", this.info.cx);
 			el.setAttribute("cy", this.info.cy);
 
+			if( (this.info.cx + this.radius) > document.body.clientWidth || this.info.cx < this.radius)
+			{
+				this.info.velocity.x = this.info.velocity.x * -1;
+			}
+			if( (this.info.cy + this.radius) > document.body.clientHeight || this.info.cy < this.radius)
+			{
+				this.info.velocity.y = this.info.velocity.y * -1;
+			}
 
+			page.setAttribute("width", document.body.clientWidth);
+			page.setAttribute("height", document.body.clientHeight);
 		}
 
 		var makeSVG = function(tag, attrs) {
@@ -110,7 +106,7 @@
 
 	function PlayGround()
 	{
-		var counter = 0; 
+		var counter = 0;  
 		var circles = [ ]; 
 
 		this.loop = function(){
@@ -130,30 +126,100 @@
 						var ynow1 = circles[this.circle].info.cy;
 						if(Math.sqrt( Math.pow((xnow - xnow1),2) + Math.pow((ynow - ynow1),2)) <= (radnow + radnow1))
 						{
+							function circlex(par)
+							{
+								if ( (circles[par].info.cx + radnow + radnow1) <= document.body.clientWidth & (circles[par].info.cx - radnow - radnow1) >= 0 )
+								{
+									return circles[par].info.cx;
+								}
+								else if( (circles[par].info.cx + radnow + radnow1) > document.body.clientWidth )
+								{
+									return document.body.clientWidth - radnow - radnow1;
+								}
+								else if ( (circles[par].info.cx - radnow - radnow1) < 0 )
+								{
+									return radnow + radnow1;
+								}
+							}
+							function circley(par)
+							{
+								if ( (circles[par].info.cy + radnow + radnow1) <= document.body.clientHeight & (circles[par].info.cy - radnow - radnow1) >= 0 )
+								{
+									return circles[par].info.cy;
+								}
+								else if( (circles[par].info.cy + radnow + radnow1) > document.body.clientHeight )
+								{
+									return document.body.clientHeight - radnow - radnow1;
+								}
+								else if ( (circles[par].info.cy - radnow - radnow1) < 0 )
+								{
+									return radnow + radnow1;
+								}
+							}
 							function circ(par)
 							{
 								this.elemarray = d3.select("#id" + par);
-								var fill = this.elemarray.attr('style');
-								var res = fill.split(",");
-								this.r = res[0].replace(/[^0-9]/g,'');
-								this.g = res[1].replace(/[^0-9]/g,'');
-								this.b = res[2].replace(/[^0-9]/g,'');
+								this.r = circles[par].info.r;
+								this.g = circles[par].info.g;
+								this.b = circles[par].info.b;
+								this.circindex = par;
 							}
 							var circle1 = new circ(this.circle);
 							var circle2 = new circ(currentcircle);
-							circle1.elemarray.transition()
-								.duration(2000)
-								.attr("r", 0)
-								.style("fill","white")
-								.remove();
-							circle2.elemarray.transition()
-								.duration(2000)
-								.attr("r", 0)
-								.style("fill","white")
-								.remove();
-							delete circles[this.circle];
-							delete circles[currentcircle];
-							break;
+							var r = ((circle1.r + circle2.r) / 2);
+							var g = ((circle1.g + circle2.g) / 2);
+							var b = ((circle1.b + circle2.b) / 2);
+							function combine(par1,par2)
+							{
+								var grow = new circ(par1);
+								var vanish = new circ(par2);
+								if ((circles[par1].radius + circles[par2].radius) <= document.body.clientHeight/3 & (circles[par1].radius + circles[par2].radius) <= document.body.clientWidth/3)
+								{
+									grow.elemarray
+										.transition()
+											.duration(2000)
+											.style("fill", "rgb(" + r + "," + g + "," + b + ")")
+											.attr("r", circles[par1].radius + circles[par2].radius);
+									circles[par1].radius = circles[par1].radius + circles[par2].radius;
+									circles[par1].info.cx = circlex(par1);
+									circles[par1].info.cy = circley(par1);
+								}
+								else if ((circles[par1].radius + circles[par2].radius) > document.body.clientWidth/3)
+								{
+									grow.elemarray
+										.transition()
+											.duration(2000)
+											.style('fill-opacity', 0)
+											.attr("r", document.body.clientWidth)
+											.remove();
+									delete circles[par1];
+								}
+								else if ((circles[par1].radius + circles[par2].radius) > document.body.clientHeight/3)
+								{
+									grow.elemarray
+										.transition()
+											.duration(2000)
+											.style('fill-opacity', 0)
+											.attr("r", document.body.clientHeight)
+											.remove();
+									delete circles[par1];
+								}
+								vanish.elemarray
+									.transition()
+										.duration(2000)
+										.style('fill-opacity', 0)
+										.attr("r", 0)
+										.remove();
+								delete circles[par2];
+							}
+							if(circles[this.circle].radius <= circles[currentcircle].radius)
+							{
+								combine(currentcircle,this.circle)
+							}
+							else if (circles[this.circle].radius > circles[currentcircle].radius)
+							{
+								combine(this.circle,currentcircle);
+							}
 						}
 					}
 				}
@@ -164,7 +230,6 @@
 			var new_circle = new Circle(x,y,counter++);
 			circles.push(new_circle);
 		}
-
 		this.createNewCircle(document.body.clientWidth/2, document.body.clientHeight/2);
 	}
 
@@ -174,5 +239,11 @@
 	document.onclick = function(e) {
 		playground.createNewCircle(e.x,e.y);
 	}
-
+	
 	</script>
+
+
+
+
+
+
