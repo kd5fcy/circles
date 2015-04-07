@@ -1,6 +1,7 @@
 <html>
 <head>
-	<title>Javascript Box - OOP demo</title>
+	<title>CIRCLES!!!</title>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 	<script type="text/javascript" src="d3.min.js"></script>
 </head>
 <body>
@@ -50,14 +51,32 @@
 			return Math.random()*(max-min) + min;
 		}
 
+		function color(par)
+		{
+			if (par)
+			{
+				return Math.floor(Math.random() * 3) * 127;
+			}
+			else
+			{
+				return Math.floor(Math.random() * 2) * 127;
+			}
+		}
+
 		this.initialize = function(){
 			this.info.velocity = {
 				x: randomNumberBetween(-3,3),
 				y: randomNumberBetween(-3,3)
 			}
-			this.info.r = Math.floor(Math.random() * 256);
-			this.info.g = Math.floor(Math.random() * 256);
-			this.info.b = Math.floor(Math.random() * 256);
+			this.info.r = color(1);
+			this.info.g = color(1);
+			this.info.b = color(1);
+			if (this.info.r === 254 & this.info.g === 254 & this.info.b === 254) 
+				{
+					this.info.r = color();
+					this.info.g = color();
+					this.info.b = color();
+				}
 			var circle = makeSVG('circle', 
 				{ 	cx: this.info.cx,
 				  	cy: this.info.cy,
@@ -164,15 +183,26 @@
 								this.b = circles[par].info.b;
 								this.circindex = par;
 							}
-							var circle1 = new circ(this.circle);
-							var circle2 = new circ(currentcircle);
-							var r = ((circle1.r + circle2.r) / 2);
-							var g = ((circle1.g + circle2.g) / 2);
-							var b = ((circle1.b + circle2.b) / 2);
+							if(circles[this.circle].radius <= circles[currentcircle].radius)
+							{
+								var circle1 = new circ(this.circle);
+								var circle2 = new circ(currentcircle);
+							}
+							else
+							{
+								var circle1 = new circ(currentcircle);
+								var circle2 = new circ(this.circle);
+							}
+							var r = ((circle1.r + circle2.r)/2);
+							var g = ((circle1.g + circle2.g)/2);
+							var b = ((circle1.b + circle2.b)/2);
 							function combine(par1,par2)
 							{
 								var grow = new circ(par1);
 								var vanish = new circ(par2);
+								circles[par1].info.r = r;
+								circles[par1].info.g = g;
+								circles[par1].info.b = b;
 								if ((circles[par1].radius + circles[par2].radius) <= document.body.clientHeight/3 & (circles[par1].radius + circles[par2].radius) <= document.body.clientWidth/3)
 								{
 									grow.elemarray
@@ -216,7 +246,7 @@
 							{
 								combine(currentcircle,this.circle)
 							}
-							else if (circles[this.circle].radius > circles[currentcircle].radius)
+							else
 							{
 								combine(this.circle,currentcircle);
 							}
